@@ -8,7 +8,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 /**
  * @author: tn
@@ -16,6 +15,7 @@ import java.io.IOException;
  * @Description:
  */
 public class JWTFilter extends BasicHttpAuthenticationFilter {
+
 
     /**
      * 是否是登录接口，检测header里面是否包含Authorization字段即可
@@ -27,7 +27,7 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
     @Override
     protected boolean isLoginAttempt(ServletRequest request, ServletResponse response) {
         HttpServletRequest req = (HttpServletRequest) request;
-        return req.getHeader("Authorization") != null;
+        return req.getHeader(JWTUtil.AUTHORIZATION) != null;
     }
 
     /**
@@ -42,7 +42,7 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
     protected boolean executeLogin(ServletRequest request, ServletResponse response) throws Exception {
 
         HttpServletRequest req = (HttpServletRequest) request;
-        String authorization = req.getHeader("Authorization");
+        String authorization = req.getHeader(JWTUtil.AUTHORIZATION);
         JWTToken token = new JWTToken(authorization);
         // 提交给shiroRealm进入登入，如果错误会抛出错误
         getSubject(request, response).login(token);
@@ -63,7 +63,6 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
             try {
                 executeLogin(request, response);
             } catch (Exception e) {
-                e.printStackTrace();
                 unauthorized(response);
             }
 
@@ -96,12 +95,6 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
     public void unauthorized(ServletResponse response) {
         HttpServletResponse servletResponse = (HttpServletResponse) response;
         servletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
-        servletResponse.setContentType("text/html; charset=UTF-8");
-        try {
-            servletResponse.getWriter().print(HttpStatus.UNAUTHORIZED.name());
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
-        }
     }
 
 }

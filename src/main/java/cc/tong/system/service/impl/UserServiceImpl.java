@@ -21,6 +21,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
         user.setUsername("管理员");
         user.setUserId(1L);
+        user.setPassword("123456");
         return user;
     }
 

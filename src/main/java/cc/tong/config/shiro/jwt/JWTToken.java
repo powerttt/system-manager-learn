@@ -9,11 +9,13 @@ import org.apache.shiro.authc.AuthenticationToken;
  */
 public class JWTToken implements AuthenticationToken {
 
-    // 密钥
+    /**
+     * 密钥
+     */
     private String token;
 
     public JWTToken(String token) {
-        this.token = token;
+        this.token = token.substring(JWTUtil.AUTHORIZATION_PREFIX.length());
     }
 
     @Override

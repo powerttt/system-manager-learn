@@ -6,17 +6,23 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
 
 public class JWTUtil {
 
     // 过期时间5分钟
-    private static final long EXPIRE_TIME = 5*60*1000;
+    private static final long EXPIRE_TIME = 30 * 60 * 1000;
+
+    public static final String AUTHORIZATION = "Authorization";
+
+    public static final String AUTHORIZATION_PREFIX = "Bearer ";
 
     /**
      * 校验token是否正确
-     * @param token 密钥
+     *
+     * @param token  密钥
      * @param secret 用户的密码
      * @return 是否正确
      */
@@ -35,6 +41,7 @@ public class JWTUtil {
 
     /**
      * 获得token中的信息无需secret解密也能获得
+     *
      * @return token中包含的用户名
      */
     public static String getUsername(String token) {
@@ -48,13 +55,14 @@ public class JWTUtil {
 
     /**
      * 生成签名,5min后过期
+     *
      * @param username 用户名
-     * @param secret 用户的密码
+     * @param secret   用户的密码
      * @return 加密的token
      */
     public static String sign(String username, String secret) {
         try {
-            Date date = new Date(System.currentTimeMillis()+EXPIRE_TIME);
+            Date date = new Date(System.currentTimeMillis() + EXPIRE_TIME);
             Algorithm algorithm = Algorithm.HMAC256(secret);
             // 附带username信息
             return JWT.create()
@@ -64,5 +72,17 @@ public class JWTUtil {
         } catch (UnsupportedEncodingException e) {
             return null;
         }
+    }
+
+    /**
+     * 生成签名,5min后过期
+     *
+     * @param username 用户名
+     * @param secret   用户的密码
+     * @return 加密的token
+     */
+    public static void sign(String username, String secret, HttpServletResponse response) {
+        String token = sign(username, secret);
+        response.setHeader(AUTHORIZATION, AUTHORIZATION_PREFIX + token);
     }
 }

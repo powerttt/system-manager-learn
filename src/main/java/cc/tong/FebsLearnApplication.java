@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @Date: 2020/7/31 0031 09:22
  * @Description:
  */
-@MapperScan("cc.tong.generator.mapper")
+@MapperScan("cc.tong.*.mapper")
 @SpringBootApplication
 public class FebsLearnApplication {
     public static void main(String[] args) {
