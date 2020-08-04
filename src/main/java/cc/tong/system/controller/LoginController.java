@@ -6,6 +6,7 @@ import cc.tong.system.entity.User;
 import cc.tong.system.service.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -31,11 +32,13 @@ public class LoginController {
     private final IUserService userService;
 
     @PostMapping("login")
-    public void login(@NotBlank(message = "{required}") String username,
-                      @NotBlank(message = "{required}") String password, HttpServletResponse response) {
+    public User login(@NotBlank(message = "{required}") String username,
+                      @NotBlank(message = "{required}") String password,
+                      boolean rememberMe,HttpServletResponse response) {
         User byName = userService.findByName(username);
-        JWTUtil.sign(username, password, response);
-        return;
+        UsernamePasswordToken token = new UsernamePasswordToken(username, password, rememberMe);
+        SecurityUtils.getSubject().login(token);
+        return byName;
     }
 
     @PostMapping
