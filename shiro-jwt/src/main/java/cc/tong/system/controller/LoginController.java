@@ -1,7 +1,7 @@
 package cc.tong.system.controller;
 
 import cc.tong.common.ResponseBean;
-import cc.tong.config.shiro.jwt.JWTUtil;
+import cc.tong.security.config.shiro.jwt.JWTUtil;
 import cc.tong.system.entity.User;
 import cc.tong.system.service.IUserService;
 import lombok.RequiredArgsConstructor;
