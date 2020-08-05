@@ -1,11 +1,10 @@
 package cc.tong.security.config.shiro;
 
-import cc.tong.security.config.shiro.jwt.JWTToken;
-import cc.tong.security.config.shiro.jwt.JWTUtil;
 import cc.tong.system.entity.User;
 import cc.tong.system.service.IUserDataPermissionService;
 import cc.tong.system.service.IUserService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
@@ -44,14 +43,6 @@ public class ShiroRealm extends AuthorizingRealm {
     }
 
     /**
-     * 大坑！，必须重写此方法，不然Shiro会报错
-     */
-    @Override
-    public boolean supports(AuthenticationToken token) {
-        return token instanceof JWTToken;
-    }
-
-    /**
      * 授权模块，获取用户角色和权限
      *
      * @param principals principal
@@ -59,13 +50,12 @@ public class ShiroRealm extends AuthorizingRealm {
      */
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
-        System.out.println("doGetAuthorizationInfo");
         User user = (User) principals.getPrimaryPrincipal();
         log.info("username online: {}", user.getUsername());
         SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();
 
         // 获取用户角色集
-        Set<String> roleSet = new HashSet<>(Arrays.asList("admin","admin1", "employee"));
+        Set<String> roleSet = new HashSet<>(Arrays.asList("admin", "admin1", "employee"));
         simpleAuthorizationInfo.setRoles(roleSet);
 
         // 获取用户权限集
@@ -83,15 +73,13 @@ public class ShiroRealm extends AuthorizingRealm {
      */
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken principals) throws AuthenticationException {
-        System.out.println("doGetAuthenticationInfo");
-        String token = (String) principals.getPrincipal();
-        String username = JWTUtil.getUsername(token);
+        String username = (String) principals.getPrincipal();
+        String password = new String((char[]) principals.getCredentials());
 
         // 查询用户信息
-        Optional<User> userOptional = Optional.ofNullable(userService.findByName("admin"));
+        Optional<User> userOptional = Optional.ofNullable(userService.findByName(username));
 
-
-        if (!userOptional.isPresent() || !JWTUtil.verify(token, username, userOptional.get().getPassword())) {
+        if (!userOptional.isPresent() || !StringUtils.equals(userOptional.get().getPassword(), password)) {
             throw new AuthenticationException("Username or password error");
         }
         User user = userOptional.get();
@@ -103,7 +91,7 @@ public class ShiroRealm extends AuthorizingRealm {
         String deptIds = userDataPermissionService.findByUserId(String.valueOf(user.getUserId()));
         user.setDeptIds(deptIds);
 
-        return new SimpleAuthenticationInfo(user, token, getName());
+        return new SimpleAuthenticationInfo(user, password, getName());
     }
 
     /**
