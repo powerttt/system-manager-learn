@@ -2,6 +2,7 @@ package cc.tong.security.entity;
 
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -11,8 +12,9 @@ import java.util.List;
  * @Description:
  */
 @Data
-public class SysUser {
+public class SysUser implements Serializable {
 
+    private static final long serialVersionUID = 9075018333756584572L;
     /** 用户ID */
     private Long userId;
 

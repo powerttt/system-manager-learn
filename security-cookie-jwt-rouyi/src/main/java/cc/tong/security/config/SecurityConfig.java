@@ -1,6 +1,7 @@
 package cc.tong.security.config;
 
 import cc.tong.security.filter.JwtAuthenticationTokenFilter;
+import cc.tong.security.handler.AccessDeniedServletImpl;
 import cc.tong.security.handler.AuthenticationEntryPointImpl;
 import cc.tong.security.handler.LogoutHandlerImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.filter.CorsFilter;
@@ -47,6 +49,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter;
 
+    /**
+     * jwt处理
+     */
+    @Autowired
+    private AccessDeniedServletImpl accessDeniedServlet;
+
 
     /**
      * 跨域处理 器
@@ -74,12 +82,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 // 认证失败处理
                 .exceptionHandling().authenticationEntryPoint(authenticationPoint)
+                // 403
+                .accessDeniedHandler(accessDeniedServlet)
                 // 基于token，不需要session
                 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 // 过滤请求
                 .and().authorizeRequests().antMatchers("/login").anonymous()
                 .antMatchers(HttpMethod.GET, "/*.html", "/**/*.html", "/**/*.css", "/**/*.js").permitAll()
-                // 除上诉路径，都需要认证
+                // 除上述路径，都需要认证
                 .anyRequest().authenticated()
                 .and().headers().frameOptions().disable();
 

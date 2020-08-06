@@ -44,7 +44,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
 
         SysUser sysUser = new SysUser();
         sysUser.setUserName(username);
-        sysUser.setPassword("123456");
+        sysUser.setPassword("$2a$10$uTTc3SYJPwK/4ug5Ai51zuC9OLbHVvTbjmJntW/bRbK34HJ1lxZYC");
 
         return new LoginUser(sysUser, new HashSet<>(Arrays.asList("*:*:*")));
 

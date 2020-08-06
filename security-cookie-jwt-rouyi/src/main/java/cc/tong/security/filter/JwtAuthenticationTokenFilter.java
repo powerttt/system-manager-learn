@@ -1,7 +1,7 @@
 package cc.tong.security.filter;
 
 import cc.tong.security.entity.LoginUser;
-import cc.tong.security.handler.TokenService;
+import cc.tong.security.handler.ITokenService;
 import cc.tong.security.utils.RouyiSecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,12 +26,12 @@ import java.util.Optional;
 public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
     @Autowired
-    private TokenService tokenService;
+    private ITokenService tokenService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         Optional<LoginUser> loginUserOptional = Optional.ofNullable(tokenService.getLoginUser(request));
-        if (loginUserOptional.isPresent() && null != RouyiSecurityUtil.getAuthentication()) {
+        if (loginUserOptional.isPresent() && null == RouyiSecurityUtil.getAuthentication()) {
             tokenService.verifyToken(loginUserOptional.get());
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginUserOptional.get(), null, loginUserOptional.get().getAuthorities());
             authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

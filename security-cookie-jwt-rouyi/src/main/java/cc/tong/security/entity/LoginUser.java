@@ -94,6 +94,7 @@ public class LoginUser implements UserDetails {
 
     public LoginUser(SysUser user, Set<String> permissions) {
         this.user = user;
+        permissions.add("test:test");
         this.permissions = permissions;
     }
 }

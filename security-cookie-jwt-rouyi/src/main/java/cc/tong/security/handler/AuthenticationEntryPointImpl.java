@@ -21,7 +21,7 @@ public class AuthenticationEntryPointImpl implements AuthenticationEntryPoint, S
     @Override
     public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException, ServletException {
 
-        String msg = String.format("请求%s失败", httpServletRequest.getRequestURI());
+        String msg = String.format("请求 %s 失败，无法访问系统资源", httpServletRequest.getRequestURI());
         ServletUtils.renderString(httpServletResponse, msg);
     }
 }

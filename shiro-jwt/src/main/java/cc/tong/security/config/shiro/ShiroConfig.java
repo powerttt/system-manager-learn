@@ -1,10 +1,5 @@
 package cc.tong.security.config.shiro;
 
-<<<<<<< HEAD:shiro-jwt/src/main/java/cc/tong/security/config/shiro/ShiroConfig.java
-import cc.tong.security.config.shiro.jwt.JWTFilter;
-import org.apache.shiro.mgt.DefaultSessionStorageEvaluator;
-import org.apache.shiro.mgt.DefaultSubjectDAO;
-=======
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.codec.Base64;
@@ -12,20 +7,16 @@ import org.apache.shiro.mgt.RememberMeManager;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.session.SessionListener;
 import org.apache.shiro.session.mgt.DefaultSessionManager;
->>>>>>> 5246dff0093033f6a96c7fb29ceac8373a96c00d:src/main/java/cc/tong/config/shiro/ShiroConfig.java
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.CookieRememberMeManager;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
-<<<<<<< HEAD:shiro-jwt/src/main/java/cc/tong/security/config/shiro/ShiroConfig.java
-=======
 import org.apache.shiro.web.servlet.SimpleCookie;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.crazycake.shiro.RedisCacheManager;
 import org.crazycake.shiro.RedisManager;
 import org.crazycake.shiro.RedisSessionDAO;
 import org.springframework.beans.factory.annotation.Value;
->>>>>>> 5246dff0093033f6a96c7fb29ceac8373a96c00d:src/main/java/cc/tong/config/shiro/ShiroConfig.java
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.Base64Utils;
