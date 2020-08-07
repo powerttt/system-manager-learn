@@ -1,15 +1,10 @@
 package cc.tong.system.service;
 
 
-import cc.tong.system.entity.UserDataPermission;
-import com.baomidou.mybatisplus.extension.service.IService;
-
-import java.util.List;
-
 /**
  * @author MrBird
  */
-public interface IUserDataPermissionService extends IService<UserDataPermission> {
+public interface IUserDataPermissionService {
 
 
     /**

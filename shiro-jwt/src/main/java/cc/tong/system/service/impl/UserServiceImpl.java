@@ -1,9 +1,7 @@
 package cc.tong.system.service.impl;
 
 import cc.tong.system.entity.User;
-import cc.tong.system.mapper.UserMapper;
 import cc.tong.system.service.IUserService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
 /**
@@ -12,7 +10,7 @@ import org.springframework.stereotype.Service;
  * @Description:
  */
 @Service
-public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
+public class UserServiceImpl implements IUserService {
 
 
     @Override

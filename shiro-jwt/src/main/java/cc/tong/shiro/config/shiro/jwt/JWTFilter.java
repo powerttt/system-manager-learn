@@ -1,5 +1,6 @@
-package cc.tong.security.config.shiro.jwt;
+package cc.tong.shiro.config.shiro.jwt;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.web.filter.authc.BasicHttpAuthenticationFilter;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -27,7 +28,7 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
     @Override
     protected boolean isLoginAttempt(ServletRequest request, ServletResponse response) {
         HttpServletRequest req = (HttpServletRequest) request;
-        return req.getHeader(JWTUtil.AUTHORIZATION) != null;
+        return StringUtils.isNotBlank(req.getHeader(JWTUtil.AUTHORIZATION));
     }
 
     /**
@@ -63,9 +64,8 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
             try {
                 executeLogin(request, response);
             } catch (Exception e) {
-                unauthorized(response);
+                response401(response);
             }
-
         }
         return true;
     }
@@ -92,7 +92,7 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
     /**
      * 没权限
      */
-    public void unauthorized(ServletResponse response) {
+    public void response401(ServletResponse response) {
         HttpServletResponse servletResponse = (HttpServletResponse) response;
         servletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
     }

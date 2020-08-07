@@ -1,28 +1,30 @@
-package cc.tong.security.config.shiro;
+package cc.tong.shiro.config.shiro;
 
+import cc.tong.shiro.config.shiro.jwt.JWTFilter;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.codec.Base64;
-import org.apache.shiro.mgt.RememberMeManager;
+import org.apache.shiro.mgt.DefaultSessionStorageEvaluator;
+import org.apache.shiro.mgt.DefaultSubjectDAO;
 import org.apache.shiro.mgt.SecurityManager;
-import org.apache.shiro.session.SessionListener;
-import org.apache.shiro.session.mgt.DefaultSessionManager;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.CookieRememberMeManager;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.servlet.SimpleCookie;
-import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.crazycake.shiro.RedisCacheManager;
 import org.crazycake.shiro.RedisManager;
-import org.crazycake.shiro.RedisSessionDAO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.Base64Utils;
 
+import javax.servlet.Filter;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * @author: tn
@@ -42,10 +44,6 @@ public class ShiroConfig {
     private String loginUrl;
     @Value("${shiro.unauthorized_url}")
     private String unauthorizedUrl;
-    @Value("${shiro.session_timeout}")
-    private Long sessionTimeout;
-    @Value("${shiro.cookie_timeout}")
-    private Integer cookieTimeout;
     @Value("${shiro.logout_url}")
     private String logoutUrl;
     @Value("${spring.redis.host}")
@@ -86,8 +84,8 @@ public class ShiroConfig {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
         // 配置 SecurityManager，并注入 shiroRealm
         securityManager.setRealm(shiroRealm);
-        // 配置 shiro session管理器
-        securityManager.setSessionManager(sessionManager());
+        // 关闭session
+        securityManager.setSubjectDAO(disableSessionSubjectDao());
         // 配置 缓存管理类 cacheManager
         securityManager.setCacheManager(cacheManager());
         // 配置 rememberMeCookie
@@ -95,6 +93,18 @@ public class ShiroConfig {
         return securityManager;
     }
 
+    /**
+     * 关闭session
+     *
+     * @return
+     */
+    public DefaultSubjectDAO disableSessionSubjectDao() {
+        DefaultSubjectDAO subjectDAO = new DefaultSubjectDAO();
+        DefaultSessionStorageEvaluator sessionStorageEvaluator = new DefaultSessionStorageEvaluator();
+        sessionStorageEvaluator.setSessionStorageEnabled(false);
+        subjectDAO.setSessionStorageEvaluator(sessionStorageEvaluator);
+        return subjectDAO;
+    }
 
     /**
      * cookie管理对象
@@ -121,9 +131,10 @@ public class ShiroConfig {
         // 设置 cookie 名称，对应 login.html 页面的 <input type="checkbox" name="rememberMe"/>
         SimpleCookie cookie = new SimpleCookie("rememberMe");
         // 设置 cookie 的过期时间，单位为秒，这里为一天
-        cookie.setMaxAge(cookieTimeout);
+        cookie.setMaxAge(1000);
         return cookie;
     }
+
     @Bean
     public ShiroFilterFactoryBean shiroFilterFactoryBean(SecurityManager securityManager) {
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
@@ -137,6 +148,11 @@ public class ShiroConfig {
         // 未授权 url
         shiroFilterFactoryBean.setUnauthorizedUrl(unauthorizedUrl);
 
+        // 定义自己的过滤器
+        Map<String, Filter> filterMap = new HashMap<>();
+        filterMap.put("jwt", new JWTFilter());
+        shiroFilterFactoryBean.setFilters(filterMap);
+
         LinkedHashMap<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
         // 设置免认证 url
         String[] anonUrls = StringUtils.splitByWholeSeparatorPreserveAllTokens(anonUrl, ",");
@@ -147,41 +163,16 @@ public class ShiroConfig {
         filterChainDefinitionMap.put(logoutUrl, "logout");
 
         // 除上以外所有 url都必须认证通过才可以访问，未通过认证自动访问 LoginUrl
-        filterChainDefinitionMap.put("/**", "user");
+        filterChainDefinitionMap.put("/**", "jwt");
 
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
         return shiroFilterFactoryBean;
     }
+
     @Bean
     public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor(SecurityManager securityManager) {
         AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor = new AuthorizationAttributeSourceAdvisor();
         authorizationAttributeSourceAdvisor.setSecurityManager(securityManager);
         return authorizationAttributeSourceAdvisor;
-    }
-
-
-    @Bean
-    public RedisSessionDAO redisSessionDAO() {
-        RedisSessionDAO redisSessionDAO = new RedisSessionDAO();
-        redisSessionDAO.setRedisManager(redisManager());
-        return redisSessionDAO;
-    }
-
-    /**
-     * session 管理对象
-     *
-     * @return DefaultWebSessionManager
-     */
-    @Bean
-    public DefaultWebSessionManager sessionManager() {
-        DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
-        Collection<SessionListener> listeners = new ArrayList<>();
-        listeners.add(new ShiroSessionListener());
-        // 设置 session超时时间
-        sessionManager.setGlobalSessionTimeout(sessionTimeout * 1000L);
-        sessionManager.setSessionListeners(listeners);
-        sessionManager.setSessionDAO(redisSessionDAO());
-        sessionManager.setSessionIdUrlRewritingEnabled(false);
-        return sessionManager;
     }
 }

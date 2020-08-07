@@ -1,4 +1,4 @@
-package cc.tong.security.config.shiro.jwt;
+package cc.tong.shiro.config.shiro.jwt;
 
 import org.apache.shiro.authc.AuthenticationToken;
 
@@ -15,7 +15,9 @@ public class JWTToken implements AuthenticationToken {
     private String token;
 
     public JWTToken(String token) {
-        this.token = token.substring(JWTUtil.AUTHORIZATION_PREFIX.length());
+        if (token != null) {
+            this.token = token.substring(JWTUtil.AUTHORIZATION_PREFIX.length());
+        }
     }
 
     @Override

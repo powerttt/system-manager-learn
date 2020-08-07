@@ -1,14 +1,13 @@
 package cc.tong.system.service;
 
 import cc.tong.system.entity.User;
-import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
  * @author: tn
  * @Date: 2020/8/1 0001 16:07
  * @Description:
  */
-public interface IUserService extends IService<User> {
+public interface IUserService  {
 
     /**
      * 通过用户名查找用户

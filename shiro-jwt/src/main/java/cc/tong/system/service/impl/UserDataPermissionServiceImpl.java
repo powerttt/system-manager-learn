@@ -1,12 +1,7 @@
 package cc.tong.system.service.impl;
 
-import cc.tong.system.entity.UserDataPermission;
-import cc.tong.system.mapper.UserDataPermissionMapper;
 import cc.tong.system.service.IUserDataPermissionService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * @author: tn
@@ -14,7 +9,7 @@ import java.util.List;
  * @Description:
  */
 @Service
-public class UserDataPermissionServiceImpl extends ServiceImpl<UserDataPermissionMapper, UserDataPermission> implements IUserDataPermissionService {
+public class UserDataPermissionServiceImpl implements IUserDataPermissionService {
 
 
     @Override

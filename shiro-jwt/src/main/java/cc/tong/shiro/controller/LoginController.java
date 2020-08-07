@@ -1,12 +1,11 @@
-package cc.tong.system.controller;
+package cc.tong.shiro.controller;
 
 import cc.tong.common.ResponseBean;
-import cc.tong.security.config.shiro.jwt.JWTUtil;
+import cc.tong.shiro.config.shiro.jwt.JWTUtil;
 import cc.tong.system.entity.User;
 import cc.tong.system.service.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -32,13 +31,11 @@ public class LoginController {
     private final IUserService userService;
 
     @PostMapping("login")
-    public User login(@NotBlank(message = "{required}") String username,
+    public Object login(@NotBlank(message = "{required}") String username,
                       @NotBlank(message = "{required}") String password,
-                      boolean rememberMe,HttpServletResponse response) {
+                      boolean rememberMe, HttpServletResponse response) {
         User byName = userService.findByName(username);
-        UsernamePasswordToken token = new UsernamePasswordToken(username, password, rememberMe);
-        SecurityUtils.getSubject().login(token);
-        return byName;
+        return JWTUtil.sign(username,password);
     }
 
     @PostMapping
@@ -67,13 +64,13 @@ public class LoginController {
     @GetMapping("/require_role")
     @RequiresRoles("admin")
     public ResponseBean requireRole() {
-        return new ResponseBean().success().message("You are visiting require_role");
+        return new ResponseBean().success().message("有");
     }
 
     @GetMapping("/require_permission")
     @RequiresPermissions(logical = Logical.AND, value = {"view", "edit"})
     public ResponseBean requirePermission() {
-        return new ResponseBean().success().message("You are visiting permission require edit,view");
+        return new ResponseBean().success().message("您正在访问权限，需要编辑，查看");
     }
 
     @RequestMapping(path = "/401")

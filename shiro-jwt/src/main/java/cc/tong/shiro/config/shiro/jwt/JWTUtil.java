@@ -1,4 +1,4 @@
-package cc.tong.security.config.shiro.jwt;
+package cc.tong.shiro.config.shiro.jwt;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;

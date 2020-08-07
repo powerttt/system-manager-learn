@@ -1,10 +1,10 @@
-package cc.tong.security.config.shiro;
+package cc.tong.shiro.config.shiro;
 
+import cc.tong.shiro.config.shiro.jwt.JWTUtil;
 import cc.tong.system.entity.User;
 import cc.tong.system.service.IUserDataPermissionService;
 import cc.tong.system.service.IUserService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
@@ -73,25 +73,23 @@ public class ShiroRealm extends AuthorizingRealm {
      */
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken principals) throws AuthenticationException {
-        String username = (String) principals.getPrincipal();
-        String password = new String((char[]) principals.getCredentials());
-
+        String username = Optional.ofNullable((String) principals.getPrincipal()).orElseThrow(() -> new AuthenticationException("token invalid"));
         // 查询用户信息
-        Optional<User> userOptional = Optional.ofNullable(userService.findByName(username));
+        User user = Optional.ofNullable(userService.findByName(username)).orElseThrow(() -> new AuthenticationException("User didn't existed!"));
 
-        if (!userOptional.isPresent() || !StringUtils.equals(userOptional.get().getPassword(), password)) {
-            throw new AuthenticationException("Username or password error");
+        if (JWTUtil.verify(username, username, user.getPassword())) {
+            new AuthenticationException("Username or password error");
         }
-        User user = userOptional.get();
 
         if (User.STATUS_LOCK.equals(user.getStatus())) {
             throw new LockedAccountException("账号已被锁定,请联系管理员！");
         }
+
         // 把用户信息塞shiro进去
         String deptIds = userDataPermissionService.findByUserId(String.valueOf(user.getUserId()));
         user.setDeptIds(deptIds);
 
-        return new SimpleAuthenticationInfo(user, password, getName());
+        return new SimpleAuthenticationInfo(user, user.getPassword(), getName());
     }
 
     /**
